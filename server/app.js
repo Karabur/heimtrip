@@ -1,32 +1,31 @@
-/**
- * Main application file
- */
-
 'use strict';
 
-// Set default node environment to development
 process.env.NODE_ENV = process.env.NODE_ENV || 'development';
 
 var express = require('express');
-var mongoose = require('mongoose');
-var config = require('./config/environment');
+var bodyParser = require('body-parser');
+var path = require('path');
+var errorHandler = require('errorhandler');
 
-// Connect to database
-mongoose.connect(config.mongo.uri, config.mongo.options);
+var routes = require('./routes');
 
-// Populate DB with sample data
-if(config.seedDB) { require('./config/seed'); }
+var root = path.resolve('./');
+var publicPath = path.join(root, 'client');
+var port = process.env.PORT || 5000;
 
-// Setup server
 var app = express();
 var server = require('http').createServer(app);
-require('./config/express')(app);
-require('./routes')(app);
 
-// Start server
-server.listen(config.port, config.ip, function () {
-  console.log('Express server listening on %d, in %s mode', config.port, app.get('env'));
-});
+app.set('views', root + '/server/views');
+app.set('view engine', 'jade');
+app.use(bodyParser.urlencoded({extended: false}));
+app.use(bodyParser.json());
 
-// Expose app
-exports = module.exports = app;
+app.use(require('less-middleware')(publicPath));
+app.use(express.static(publicPath));
+app.use(errorHandler()); // Error handler - has to be last
+
+app.use('/', routes);
+
+console.log('App listening on port ', port);
+app.listen(port);
