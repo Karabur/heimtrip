@@ -9,6 +9,9 @@ var errorHandler = require('errorhandler');
 
 var routes = require('./routes');
 
+var webpackDevMiddleware = require("webpack-dev-middleware");
+var webpack = require("webpack");
+
 var root = path.resolve('./');
 var publicRoot = path.join(root, 'client');
 var port = process.env.PORT || 5000;
@@ -25,6 +28,15 @@ app.use('/', routes);
 
 app.use(require('less-middleware')(publicRoot));
 app.use(express.static(publicRoot));
+
+var compiler = webpack({
+  entry: 'client/js/main.js',
+  output: { path: '/' }
+});
+
+app.use(webpackDevMiddleware(compiler, {
+}));
+
 app.use(errorHandler());
 
 

@@ -1,5 +1,5 @@
 node_modules
 gen
 .idea
-client/bower_components
+client/vendor
 dist
